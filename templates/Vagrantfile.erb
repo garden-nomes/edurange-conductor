@@ -1,0 +1,25 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/trusty64"
+
+  config.ssh.username = "vagrant"
+  <% if nat? %>
+    config.ssh.forward_agent = true
+    config.vm.network "forwarded_port", guest: 22, host: 2020, host_ip: "192.168.0.115"
+  <% end %>
+
+  config.vm.define "<%= vm_name %>", primary: true do |u64|
+    u64.vm.provider "virtualbox" do |vb|
+      <% if nat? %>
+        u64.vm.network "private_network", ip: "<%= generate_nat_ip %>", virtualbox__intnet: "<%= network_name %>"
+      <% end %>
+      u64.vm.network "private_network", ip: "<%= instance['IP_Address'] %>", virtualbox__intnet: "<%= network_name %>"
+
+      vb.name = "<%= vm_name %>"
+      vb.memory = "1024"
+      vb.gui = false
+    end
+  end
+end
