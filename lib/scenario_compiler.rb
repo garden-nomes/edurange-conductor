@@ -1,15 +1,11 @@
 require 'yaml'
-
 require_relative 'vagrantfile_renderer'
 
 # Takes a scenario .yml file and compiles it into the vagrant and puppet files
 # nessecary to boot the scenario up.
-class Scenario
-  attr_reader :location
-
-  def initialize(name, location = 'production')
-    path = File.join(ROOT_DIR, 'scenarios', location, name)
-    @scenario = YAML.load_file(File.join(path, "#{name}.yml"))
+class ScenarioCompiler
+  def initialize(fname)
+    @scenario = YAML.load_file(fname)
     @uid = generate_uid
   end
 
@@ -23,6 +19,8 @@ class Scenario
         end
       end
     end
+
+    @compile_dir
   end
 
   private
@@ -32,12 +30,12 @@ class Scenario
     Dir.mkdir(out_dir) unless File.exist?(out_dir)
 
     # delete colliding compilation directory if any and create a new
-    compile_dir = File.join(out_dir, @uid)
-    File.rm_rf(compile_dir) if File.exist?(compile_dir)
-    Dir.mkdir(compile_dir)
+    @compile_dir = File.join(out_dir, @uid)
+    File.rm_rf(@compile_dir) if File.exist?(@compile_dir)
+    Dir.mkdir(@compile_dir)
 
     # create a directory for instances
-    @instances_dir = File.join(compile_dir, 'instances')
+    @instances_dir = File.join(@compile_dir, 'instances')
     Dir.mkdir(@instances_dir)
   end
 

@@ -1,18 +1,21 @@
 #!/usr/bin/env ruby
 
-require 'pp'
-require_relative 'lib/scenario'
-require_relative 'lib/scenario_list'
+require_relative 'lib/scenario_compiler'
 
 ROOT_DIR = File.dirname(__FILE__)
 COMPILE_DIR = File.join(ROOT_DIR, 'compile')
 
-def main
-  scenario_name = ARGV[0]
-  scenario_location = ARGV[1] || 'production'
+def usage
+  puts "Usage: #{$PROGRAM_NAME} <scenario_file>"
+  exit
+end
 
-  return if scenario_name.nil?
-  Scenario.new(scenario_name, scenario_location).compile!(COMPILE_DIR)
+def main
+  usage if ARGV.length != 1
+
+  fname = ARGV[0]
+  output_dir = ScenarioCompiler.new(fname).compile!(COMPILE_DIR)
+  puts "Wrote scenario to #{output_dir}"
 end
 
 main
